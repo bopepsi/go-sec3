@@ -13,7 +13,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func About(w http.ResponseWriter, r *http.Request) {
-	parsed, _ := template.ParseFiles("./templates/about.page.html")
+	parsed, _ := template.ParseFiles("templates/about.page.html","templates/base.layout.html")
 	err := parsed.Execute(w, nil)
 	if err != nil {
 		fmt.Println("Error:", err)
