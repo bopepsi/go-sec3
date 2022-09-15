@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/bopepsi/go-app/pkg/config"
+	"github.com/bopepsi/go-app/pkg/models"
 )
 
 // serve html files
@@ -70,7 +71,7 @@ func SetupTmplCacheMap(a *config.AppConfig) {
 }
 
 // Best way to implement render
-func RenderTemplate(w http.ResponseWriter, page string) {
+func RenderTemplate(w http.ResponseWriter, page string, td *models.TemplateData) {
 	// create a tmplate cache or read from app wide config
 
 	var cache map[string]*template.Template
@@ -91,7 +92,7 @@ func RenderTemplate(w http.ResponseWriter, page string) {
 	}
 
 	// render template
-	tmpl.Execute(w, nil)
+	tmpl.Execute(w, *td)
 }
 
 func CreateTemplateCache() (map[string]*template.Template, error) {
