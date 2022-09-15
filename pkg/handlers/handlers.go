@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/bopepsi/go-app/pkg/config"
@@ -23,18 +21,29 @@ func SetupRepo(a *config.AppConfig) {
 }
 
 func (this *Repository) Home(w http.ResponseWriter, r *http.Request) {
-	strMap := map[string]string{
-		"test": "Hello from home page",
-	}
-	render.RenderTemplate(w, "home.page.html", &models.TemplateData{
-		StringMap: strMap,
-	})
+
+	remoteIp := r.RemoteAddr
+	this.App.Session.Put(r.Context(), "remote_ip", remoteIp)
+
+	render.RenderTemplate(w, "home.page.html", &models.TemplateData{})
 }
 
 func (this *Repository) About(w http.ResponseWriter, r *http.Request) {
-	parsed, _ := template.ParseFiles("templates/about.page.html", "templates/base.layout.html")
-	err := parsed.Execute(w, nil)
-	if err != nil {
-		fmt.Println("Error:", err)
+	// parsed, _ := template.ParseFiles("templates/about.page.html", "templates/base.layout.html")
+	// err := parsed.Execute(w, nil)
+	// if err != nil {
+	// 	fmt.Println("Error:", err)
+	// }
+
+	strMap := map[string]string{
+		"test": "Hello from about page",
 	}
+
+	remoteIp := this.App.Session.GetString(r.Context(), "remote_ip")
+
+	strMap["remote_ip"] = remoteIp
+
+	render.RenderTemplate(w, "about.page.html", &models.TemplateData{
+		StringMap: strMap,
+	})
 }
