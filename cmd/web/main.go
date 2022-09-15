@@ -22,10 +22,12 @@ func main() {
 	app.TemplateCache = cache
 	app.UseCache = true
 
+	// Setup handlers repo and render template cache
+	handlers.SetupRepo(&app)
 	render.SetupTmplCacheMap(&app)
 
-	http.HandleFunc("/", handlers.Home)
-	http.HandleFunc("/about", handlers.About)
+	http.HandleFunc("/", handlers.Repo.Home)
+	http.HandleFunc("/about", handlers.Repo.About)
 
 	log.Fatal(http.ListenAndServe(portNumber, nil))
 
