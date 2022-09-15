@@ -3,10 +3,12 @@ package render
 import (
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
-	"text/template"
+
+	"github.com/bopepsi/go-app/pkg/config"
 )
 
 // serve html files
@@ -60,17 +62,26 @@ func createAndAnddToCache(t string) error {
 	return nil
 }
 
+// Use cache generated in main
+var appConfig config.AppConfig
+
+func SetupTmplCacheMap(a *config.AppConfig) {
+	appConfig = *a
+}
+
 // Best way to implement render
 func RenderTemplate(w http.ResponseWriter, page string) {
-	// create a tmplate cache
-	cache, err := createTemplateCache()
-	if err != nil {
-		log.Fatal(err)
+	// create a tmplate cache or read from app wide config
+
+	var cache map[string]*template.Template
+
+	if appConfig.UseCache {
+		cache = appConfig.TemplateCache
 	}
 
-	// for k,v := range cache {
-	// 	fmt.Printf("key %s, value %v", k,v)
-	// }
+	if !appConfig.UseCache {
+		cache, _ = CreateTemplateCache()
+	}
 
 	// get requested template from cache
 	tmpl, ok := cache[page]
@@ -83,7 +94,7 @@ func RenderTemplate(w http.ResponseWriter, page string) {
 	tmpl.Execute(w, nil)
 }
 
-func createTemplateCache() (map[string]*template.Template, error) {
+func CreateTemplateCache() (map[string]*template.Template, error) {
 	var templatesCache map[string]*template.Template = map[string]*template.Template{}
 
 	pages, err := filepath.Glob("templates/*.page.html")
@@ -95,7 +106,7 @@ func createTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 		parsedTmplate, err := template.ParseFiles(page)
-		
+
 		if err != nil {
 			return nil, err
 		}
